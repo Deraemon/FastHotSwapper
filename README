@@ -1,1 +1,231 @@
-FastHotSwapper dcevm and agent download.
+# Brief Introduction
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/c139b8de-0c26-43ab-8e2a-7bc72d6cdb5d" />
+
+FastHotSwapper is a product of Java hot swap.
+
+What is hot swap?
+
+To put it simply, changes to code can take effective immediately without restarting the application during the whole coding process. So you can enjoy the process of coding and experience flow!
+
+Specifically, application can be upgraded while running, without restarting. For Java applications, hot swap is a process of updating code files at runtime and triggering reloading of third-party frameworks such as Spring and MyBatis……
+
+# Installation and configuration manual
+
+Two steps are necessary. Firstly, install DCEVM. Secondly, configure IntelliJ IDEA.
+
+## Step1. Install DCEVM
+### What is DCEVM?
+DCEVM is the abbreviation of Dynamic Code Evolution VM for Java 7/8.
+
+In short, DCEVM modifies JVM, allowing users to modify the structure of classes during runtime, such as adding attributes, adding methods, and modifying the inheritance relationship of classes. For details, see:
+
+<https://github.com/dcevm/dcevm>
+
+### Why we need DCEVM?
+
+During daily development, we can use the HotSwap mechanism in IntelliJ IDEA, which can reload the classes changing during debugging without restarting the entire application, by using keyboard shortcut key "Ctrl+Shift+F9".
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/99727345-cfc4-4712-8e28-4ba8dad28c99" />
+
+But unfortunately! Due to an original limitation of the Java SDK, HotSwapping only takes effect when the method body changes.
+
+In all other cases (such as changing method or class signatures), class reloading is not possible and a corresponding error message will appear.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/17225db3-3cb5-4f6b-9316-514b22bbb8ff" />
+
+### Specific installation steps
+
+1.Download the DCEVM patch of the corresponding version of JDK from the address below. The version of the patch and JDK should correspond one by one, otherwise it will cause JDK to crash.
+
+<https://plugins.jetbrains.com/plugin/20642-fasthotswapper/dcevm>
+
+
+2.Execute the installation command
+For macOS or Linux, you need to open terminal directly and run the following commands.
+```
+cd {the path of DCEVM}
+sudo java -jar dcevm-light-java8u192.jar
+```
+For Windows, you need to open cmd as an administrator, then run the following commands.
+```
+cd {the path of DCEVM}
+java -jar dcevm-light-java8u192.jar
+```
+After the commands are executed, a visual operation interface as shown below will pop up.
+
+You need to install the patch on both JDK and JRE, by clicking the following two buttons: "Replace by DCEVM" and "Install DCEVM as altjvm". Then you can close the interface.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/28bb77f4-0a24-466b-9672-98c91c2eff3a" />
+
+3.Run "java -version" to verify the result of installation. If "**Dynamic Code Evolution**" appears in the terminal, the patch is installed successfully.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/4cba033c-04d6-4900-8ab8-4e120606f9f0" />
+
+DCEVM requires that the garbage collector applied must be SerialGC (the default collector of java8). Installing this patch will cause non-SerialGC applications to fail to start.
+
+## Step2. Some IDEA settings
+
+Open IDEA after DCEVM is installed.
+
+1.Turn off IDEA's hot swap capability. Find "Build,Execution,Deployment > Debug > HotSwap Reload classes after compilation" and choose "Never".
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/9243a02b-1a9f-48d1-a9c0-820db1fd62a4" />
+
+The built-in hot swap of IDEA can only support the change of the method body, and cannot achieve the dynamic overloading of Spring, MyBatis and other frameworks. Therefore, you need to disable the built-in hot swap of IDEA.
+
+# Start using
+
+1.Start the service in debug mode
+
+Currently, only applications started in debug mode are supported. (Non-debug mode will be supported in the future, please look forward to.)
+
+For web containers , only tomcat and jetty are supported at present. Applications deployed in other containers do not support hot swap. (Support for other containers such as weblogic will be added later.)
+
+If the following key information appears, the agent has taken effect. After the service is successfully started, you can experience hot swap.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/eded4eef-a83b-4821-83bb-cf790953050b" />
+
+2.Coding
+
+After the service is started, you can start the coding journey. During coding, you can add some files or modify existing files. If you copy a java file, hot swap is not supported.
+
+3.Hot swap
+
+After coding, you can open the hot swap panel to verify the list of changed files (if the file is missing, you can open the file and save it with "ctrl+s"), and then click OK to start hot swap.
+
+You can also use the default shortcut key (ctrl+alt+9) to start hot swap. In addition, you can find FastHotSwapper in the keymap setting of IDEA to modify the shortcut key.
+
+<img src="https://plugins.jetbrains.com/files/20642/1778-page/d34497cc-4d4f-4f55-9f0a-466f1873874a" />
+
+4.Deployment completed
+
+After the hot swap is started, when "**close hot swap channel**" is output in the EventLog, the hot swap is completed. You can also view all the details of hot swap in the EventLog.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/96ae76f0-1547-4f5d-a693-17568f76d5a3" />
+
+
+# Running examples
+1.Modify the returned content and add a new method.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/d63dfd70-ab4d-44d2-a161-40bd6a7b69f8" />
+
+2.Add a new servlet method in a controller.
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/8364e406-3766-4aba-9a32-fb2c4e45d98e" />
+
+# Supported scenarios and frameworks
+
+<table>
+    <colgroup>
+        <col style="width: 20%;"/>
+        <col style="width: 30%;"/>
+        <col style="width: 50%;"/>
+    </colgroup>
+    <tbody>
+    <tr>
+        <th>Framework\Container</th>
+        <th>Supported versions</th>
+        <th colspan="1">Supported scenarios</th>
+    </tr>
+    <tr>
+        <td colspan="1">java</td>
+        <td colspan="1">Before jdk8u192</td>
+        <td colspan="1">Add classes, modify classes (add methods, add attributes, modify method
+            signature, modify method body, modify inheritance relationship, etc.)
+        </td>
+    </tr>
+    <tr>
+        <td>tomcat</td>
+        <td>7、8、9、spring boot1.x、spring2.x</td>
+        <td colspan="1">Run with external tomcat and Spring Boot+tomcat in IDEA</td>
+    </tr>
+    <tr>
+        <td colspan="1">jetty</td>
+        <td colspan="1">6-9、spring boot1.x 、spring boot2.x</td>
+        <td colspan="1">Run with&nbsp;Spring Boot+jetty</td>
+    </tr>
+    <tr>
+        <td colspan="1">spring</td>
+        <td colspan="1">4+</td>
+        <td colspan="1">Add spring beans and modify spring bean. These beans need to be scanned and
+            created by ClassPathBeanDefinitionScanner. Beans created by other methods like @Bean annotation are not
+            supported
+        </td>
+    </tr>
+    <tr>
+        <td colspan="1">mybatis</td>
+        <td colspan="1">3+</td>
+        <td colspan="1">Add and modify sql (xml) files</td>
+    </tr>
+    <tr>
+        <td colspan="1">mybatis-spring</td>
+        <td colspan="1">1+</td>
+        <td colspan="1">Add mapper interfaces, modify mapper interface, add sql (xml) file, modify
+            sql (xml) file
+        </td>
+    </tr>
+    <tr>
+        <td colspan="1">tk-mybatis</td>
+        <td colspan="1">4+</td>
+        <td colspan="1"><p>Add mapper interfaces, modify mapper interface, modify associated
+            entity, add sql (xml) files, modify sql (xml) files</p></td>
+    </tr>
+    <tr>
+        <td colspan="1">mybatis-plus</td>
+        <td colspan="1">3+</td>
+        <td colspan="1">Add mapper interfaces, modify mapper interface, modify associated entity,
+            add sql (xml) files, modify sql (xml) files
+        </td>
+    </tr>
+    <tr>
+        <td colspan="1">Jackson</td>
+        <td colspan="1">2.10.0+</td>
+        <td colspan="1">Modify entity</td>
+    </tr>
+    <tr>
+        <td colspan="1">FastJson</td>
+        <td colspan="1">1+</td>
+        <td colspan="1">Modify entity</td>
+    </tr>
+    <tr>
+        <td colspan="1">FastJson2</td>
+        <td colspan="1">2+</td>
+        <td colspan="1">Modify entity</td>
+    </tr>
+    <tr>
+        <td colspan="1">apollo</td>
+        <td colspan="1">1+</td>
+        <td colspan="1">Add apollo attributes, modify apollo attribute, and spring bean's apollo
+            attributes will not be lost after hot swap
+        </td>
+    </tr>
+    <tr>
+        <td colspan="1">java proxy</td>
+        <td colspan="1">java8</td>
+        <td colspan="1">Modify the java proxy interface structure</td>
+    </tr>
+    <tr>
+        <td colspan="1">cglib</td>
+        <td colspan="1">3+</td>
+        <td colspan="1">Modify the cglib proxy interface structure</td>
+    </tr>
+    </tbody>
+</table>
+
+# Contact way
+## WeChat group or Telegram group
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/2ebe0048-03be-4ae9-abd5-dee8961dff35" />
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/353120b8-869b-47f6-9a32-04258642fcf0" />
+
+<https://t.me/+6kE54VbjoHE0ZDk1>
+
+## WeChat of maintainer
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/fccc74f4-3a56-4620-9134-441f63105517" />
+
+<img src="https://plugins.jetbrains.com/files/20642/1777-page/4c1a6732-c8ed-491c-89e2-d4e58020f63b" />
+
+## Email: <doraemon.nj@outlook.com>
+
